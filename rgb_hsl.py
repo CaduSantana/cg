@@ -2,7 +2,8 @@ import sys
 import numpy as np
 from numba import njit
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QMainWindow, QGridLayout, QSpinBox
+from PySide6.QtGui import QPalette, QColor
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QMainWindow, QGridLayout, QSpinBox
 
 # Converte RGB para HSL
 # Baseado nas equações: https://www.rapidtables.com/convert/color/rgb-to-hsl.html
@@ -83,6 +84,10 @@ class MainWindow(QMainWindow):
         self.__ss.setRange(0, 240)
         self.__ls = QSpinBox()
         self.__ls.setRange(0, 240)
+        self.__mostraCor = QWidget()
+        self.__mostraCor.setAutoFillBackground(True)
+        self.__mostraCor.setFixedSize(230, 20)
+        self.__mostraCor.setPalette(QPalette(QColor(0, 0, 0)))
         valoresLayout.addWidget(QLabel('R'), 0, 0)
         valoresLayout.addWidget(self.__rs, 0, 1)
         valoresLayout.addWidget(QLabel('G'), 1, 0)
@@ -95,7 +100,14 @@ class MainWindow(QMainWindow):
         valoresLayout.addWidget(self.__ss, 1, 3)
         valoresLayout.addWidget(QLabel('L'), 2, 2)
         valoresLayout.addWidget(self.__ls, 2, 3)
+        botoesLayout = QHBoxLayout()
+        self.__btn_rgb_para_hsl = QPushButton("Converter\nRGB para HSL")
+        self.__btn_hsl_para_rgb = QPushButton("Converter\nHSL para RGB")
+        botoesLayout.addWidget(self.__btn_rgb_para_hsl)
+        botoesLayout.addWidget(self.__btn_hsl_para_rgb)
         centralLayout.addLayout(valoresLayout)
+        centralLayout.addLayout(botoesLayout)
+        centralLayout.addWidget(self.__mostraCor)
         centralWidget.setLayout(centralLayout)
         self.setCentralWidget(centralWidget)
 
