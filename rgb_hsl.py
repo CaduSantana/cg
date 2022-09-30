@@ -1,5 +1,8 @@
+import sys
 import numpy as np
 from numba import njit
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QMainWindow, QGridLayout, QSpinBox
 
 # Converte RGB para HSL
 # Baseado nas equações: https://www.rapidtables.com/convert/color/rgb-to-hsl.html
@@ -59,3 +62,38 @@ def hsl_para_rgb(h, s, l):
 def hsl_f(n, h, s, l):
     k = np.fmod((n + (h / 30.0)), 12.0)
     return np.round((l - (s * min(l, 1.0 - l)) * max(-1.0, min([ k - 3.0, 9.0 - k, 1.0 ]))) * 255.0)
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("CG - Conversor RGB-HSL")
+        centralWidget = QWidget()
+        centralLayout = QVBoxLayout()
+        valoresLayout = QGridLayout()
+        # Criando as spinboxes
+        self.__rs = QSpinBox()
+        self.__gs = QSpinBox()
+        self.__bs = QSpinBox()
+        self.__hs = QSpinBox()
+        self.__ss = QSpinBox()
+        self.__ls = QSpinBox()
+        valoresLayout.addWidget(QLabel('R'), 0, 0)
+        valoresLayout.addWidget(self.__rs, 0, 1)
+        valoresLayout.addWidget(QLabel('G'), 1, 0)
+        valoresLayout.addWidget(self.__gs, 1, 1)
+        valoresLayout.addWidget(QLabel('B'), 2, 0)
+        valoresLayout.addWidget(self.__bs, 2, 1)
+        valoresLayout.addWidget(QLabel('H'), 0, 2)
+        valoresLayout.addWidget(self.__hs, 0, 3)
+        valoresLayout.addWidget(QLabel('S'), 1, 2)
+        valoresLayout.addWidget(self.__ss, 1, 3)
+        valoresLayout.addWidget(QLabel('L'), 2, 2)
+        valoresLayout.addWidget(self.__ls, 2, 3)
+        centralLayout.addLayout(valoresLayout)
+        centralWidget.setLayout(centralLayout)
+        self.setCentralWidget(centralWidget)
+
+app = QApplication(sys.argv)
+w = MainWindow()
+w.show()
+app.exec()
