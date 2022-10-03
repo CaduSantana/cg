@@ -64,6 +64,7 @@ def hsl_f(n, h, s, l):
     k = np.fmod((n + (h / 30.0)), 12.0)
     return np.round((l - (s * min(l, 1.0 - l)) * max(-1.0, min([ k - 3.0, 9.0 - k, 1.0 ]))) * 255.0)
 
+# Interface gráfica
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -102,7 +103,9 @@ class MainWindow(QMainWindow):
         valoresLayout.addWidget(self.__ls, 2, 3)
         botoesLayout = QHBoxLayout()
         self.__btn_rgb_para_hsl = QPushButton("Converter\nRGB para HSL")
+        self.__btn_rgb_para_hsl.clicked.connect(self.tg_rgb_para_hsl)
         self.__btn_hsl_para_rgb = QPushButton("Converter\nHSL para RGB")
+        self.__btn_hsl_para_rgb.clicked.connect(self.tg_hsl_para_rgb)
         botoesLayout.addWidget(self.__btn_rgb_para_hsl)
         botoesLayout.addWidget(self.__btn_hsl_para_rgb)
         centralLayout.addLayout(valoresLayout)
@@ -110,6 +113,27 @@ class MainWindow(QMainWindow):
         centralLayout.addWidget(self.__mostraCor)
         centralWidget.setLayout(centralLayout)
         self.setCentralWidget(centralWidget)
+
+    def tg_rgb_para_hsl(self):
+        h, s, l = rgb_para_hsl(self.__rs.value(), self.__gs.value(), self.__bs.value())
+        h = int(round(h))
+        s = int(round(s))
+        l = int(round(l))
+        self.__hs.setValue(h)
+        self.__ss.setValue(s)
+        self.__ls.setValue(l)
+        self.__mostraCor.setPalette(QPalette(QColor(h, s, l)))
+
+    def tg_hsl_para_rgb(self):
+        r, g, b = hsl_para_rgb(self.__hs.value(), self.__ss.value(), self.__ls.value())
+        r = int(round(r))
+        g = int(round(g))
+        b = int(round(b))
+        self.__rs.setValue(r)
+        self.__gs.setValue(g)
+        self.__bs.setValue(b)
+        self.__mostraCor.setPalette(QPalette(QColor(r, g, b)))
+
 
 app = QApplication(sys.argv)
 w = MainWindow()
