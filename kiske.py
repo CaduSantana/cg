@@ -15,7 +15,6 @@ def draw_line(img, x1, y1, x2, y2, color):
         img[x, y] = color
         x += inc
         y = int((m *(x - x1)) + y1)
-    return img
 
 a = np.zeros((200, 200), dtype=int)
 draw_line(a, 0, 0, 199, 199, 255)
