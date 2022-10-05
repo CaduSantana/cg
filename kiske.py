@@ -11,10 +11,10 @@ def draw_line(img, x1, y1, x2, y2, color):
         inc = 1
     x = x1
     y = y1
-    while (x <= x2):
+    while (y <= y2):
         img[x, y] = color
-        x += inc
-        y = int((m *(x - x1)) + y1)
+        y += inc
+        x = int((y - y1) / (m + x1))
 
 a = np.zeros((200, 200), dtype=int)
 draw_line(a, 0, 0, 199, 199, 255)
