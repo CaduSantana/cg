@@ -115,14 +115,15 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(centralWidget)
 
     def tg_rgb_para_hsl(self):
-        h, s, l = rgb_para_hsl(self.__rs.value(), self.__gs.value(), self.__bs.value())
+        r, g, b = self.__rs.value(), self.__gs.value(), self.__bs.value()
+        h, s, l = rgb_para_hsl(r, g, b)
         h = int(round(h))
         s = int(round(s))
         l = int(round(l))
         self.__hs.setValue(h)
         self.__ss.setValue(s)
         self.__ls.setValue(l)
-        self.__mostraCor.setPalette(QPalette(QColor(h, s, l)))
+        self.__mostraCor.setPalette(QPalette(QColor(r, g, b)))
 
     def tg_hsl_para_rgb(self):
         r, g, b = hsl_para_rgb(self.__hs.value(), self.__ss.value(), self.__ls.value())
