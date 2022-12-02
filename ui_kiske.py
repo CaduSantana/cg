@@ -1,8 +1,6 @@
-# Qt draw line when drag and release
-
 import sys
-from PySide6.QtWidgets import *
-from PySide6.QtGui import *
+from PySide6.QtWidgets import QColorDialog, QApplication, QWidget, QPushButton, QHBoxLayout, QLabel, QVBoxLayout, QMainWindow, QFileDialog, QComboBox
+from PySide6.QtGui import QColor, QPixmap, QPainter, QPen, QAction, QPalette
 from PySide6.QtCore import Qt, QPoint
 from kiske import draw_line, draw_line_bresenham, draw_circle_parametric, draw_circle_bresenham
 from PIL import Image, ImageQt
@@ -28,6 +26,13 @@ class MainWindow(QMainWindow):
         arquivoMenu.addAction(abrirAction)
         arquivoMenu.addAction(salvarAction)
         arquivoMenu.addAction(sairAction)
+        escolheCorLayout = QHBoxLayout()
+        self.colorPreview = QLabel()
+        self.colorPreview.setAutoFillBackground(True)
+        self.colorPreview.setPalette(QPalette(QColor(255, 0, 0)))
+        self.colorPreview.setFixedHeight(20)
+        self.pickColorButton = QPushButton("Escolher cor")
+        self.pickColorButton.clicked.connect(self.pickColor)
         layout = QVBoxLayout()
         # Adicionando as operações
         self.opbox = QComboBox()
@@ -35,6 +40,9 @@ class MainWindow(QMainWindow):
         self.opbox.currentIndexChanged.connect(self.canvas.setOp)
         layout.addWidget(self.opbox)
         layout.addWidget(self.canvas)
+        escolheCorLayout.addWidget(self.colorPreview)
+        escolheCorLayout.addWidget(self.pickColorButton)
+        layout.addLayout(escolheCorLayout)
         centralWidget = QWidget()
         centralWidget.setLayout(layout)
         self.setCentralWidget(centralWidget)
@@ -48,6 +56,11 @@ class MainWindow(QMainWindow):
 
     def exit(self):
         self.close()
+
+    def pickColor(self):
+        color = QColorDialog.getColor()
+        self.canvas.setColor(color.toTuple()[:3])
+        self.colorPreview.setPalette(QPalette(color))
 
 class Canvas(QLabel):
     def __init__(self, parent=None):
@@ -64,6 +77,9 @@ class Canvas(QLabel):
         self.start = QPoint()
         self.end = QPoint()
         self.isDrawing = False
+
+    def setColor(self, color):
+        self.color = color
 
     def setOp(self, index):
         self.op = opMap[index]
