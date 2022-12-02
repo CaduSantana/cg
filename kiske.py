@@ -65,4 +65,16 @@ def draw_line_bresenham(img, x1, y1, x2, y2, color):
 a = np.zeros((200, 200), dtype=int)
 draw_line_bresenham(a, 0, 0, 20, 150, 255)
 im = Image.fromarray(a)
+#im.show()
+
+@njit
+def draw_circle_parametric(img, xc, yc, r, color):
+    for a in range(0, 360):
+        x = int(xc + r * np.cos(a))
+        y = int(yc + r * np.sin(a))
+        img[x, y] = color
+
+a = np.zeros((200, 200), dtype=int)
+draw_circle_parametric(a, 50, 50, 50, 255)
+im = Image.fromarray(a)
 im.show()
