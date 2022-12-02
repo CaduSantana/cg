@@ -17,11 +17,6 @@ def draw_line(img, x1, y1, x2, y2, color):
         y += inc
         x = int((y - y1) / (m + x1))
 
-a = np.zeros((200, 200), dtype=int)
-draw_line(a, 0, 0, 20, 150, 255)
-im = Image.fromarray(a)
-#im.show()
-
 # Para linhas mais verticais
 @njit
 def draw_line2(img, x1, y1, x2, y2, color):
@@ -36,11 +31,7 @@ def draw_line2(img, x1, y1, x2, y2, color):
         x += inc
         y = int((x - x1) * (m + y1))
 
-a = np.zeros((200, 200), dtype=int)
-draw_line2(a, 0, 0, 20, 150, 255)
-im = Image.fromarray(a)
-#im.show()
-
+# Desenha linhas com Breseham
 @njit
 def draw_line_bresenham(img, x1, y1, x2, y2, color):
     dx = abs(x2 - x1)
@@ -62,19 +53,47 @@ def draw_line_bresenham(img, x1, y1, x2, y2, color):
             y += inc_y
         img[x, y] = color
 
-a = np.zeros((200, 200), dtype=int)
-draw_line_bresenham(a, 0, 0, 20, 150, 255)
-im = Image.fromarray(a)
-#im.show()
+# Checa se um determinado par calculado (x, y) está dentro da imagem img
+# Útil par impedir círculos de "darem a "
+@njit
+def check_pair(img, x, y):
+    return (x >= 0 and x < img.shape[0] and y >= 0 and y < img.shape[1])
 
+# Desenha um círculo de centro (xc, yc) e raio r, com cor color, usando a equação paramétrica
 @njit
 def draw_circle_parametric(img, xc, yc, r, color):
     for a in range(0, 360):
         x = int(xc + r * np.cos(a))
         y = int(yc + r * np.sin(a))
-        img[x, y] = color
+        if check_pair(img, x, y):
+            img[x, y] = color
 
-a = np.zeros((200, 200), dtype=int)
-draw_circle_parametric(a, 50, 50, 50, 255)
-im = Image.fromarray(a)
-im.show()
+# Desenha um círculo usando o algoritmo de Bresenham
+@njit
+def draw_circle_bresenham(img, xc, yc, r, color):
+    x = 0
+    y = r
+    d = 3 - (r << 2)
+    while x <= y:
+        if check_pair(img, xc + x, yc + y):
+            img[xc + x, yc + y] = color
+        if check_pair(img, xc + y, yc + x):
+            img[xc + y, yc + x] = color
+        if check_pair(img, xc - x, yc + y):
+            img[xc - x, yc + y] = color
+        if check_pair(img, xc - y, yc + x):
+            img[xc - y, yc + x] = color
+        if check_pair(img, xc + x, yc - y):
+            img[xc + x, yc - y] = color
+        if check_pair(img, xc + y, yc - x):
+            img[xc + y, yc - x] = color
+        if check_pair(img, xc - x, yc - y):
+            img[xc - x, yc - y] = color
+        if check_pair(img, xc - y, yc - x):
+            img[xc - y, yc - x] = color
+        if d < 0:
+            d += (x << 2) + 6
+        else:
+            d += ((x - y) << 2) + 10
+            y -= 1
+        x += 1
