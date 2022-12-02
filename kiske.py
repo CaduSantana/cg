@@ -1,6 +1,13 @@
+'''
+    kiske - biblioteca para desenho de retas e círculos em matrizes quaisquer.
+    Nomes das funções e variáveis em inglês para condizer com a linguagem Python.
+    Autores:
+        Carlos Eduardo Fernances de Santana
+        Daniel Henrique Serezane Pereira
+'''
+
 import numpy as np
 from numba import njit
-from PIL import Image
 
 # Desenha uma reta de cor 'color' entre os pontos (x1, y1) e (x2, y2)
 # Para linhas mais horizontais
@@ -54,7 +61,7 @@ def draw_line_bresenham(img, x1, y1, x2, y2, color):
         img[x, y] = color
 
 # Checa se um determinado par calculado (x, y) está dentro da imagem img
-# Útil par impedir círculos de "darem a "
+# Útil par impedir círculos de "darem a volta" na imagem
 @njit
 def check_pair(img, x, y):
     return (x >= 0 and x < img.shape[0] and y >= 0 and y < img.shape[1])
