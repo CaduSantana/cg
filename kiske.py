@@ -22,7 +22,7 @@ def draw_line(img, x1, y1, x2, y2, color):
         y = y1
         inc = 1 if x2 > x1 else -1
         while x != x2:
-            y = int(y1 + (x - x1) * m)
+            y = int((x - x1) * m + y1)
             if x >= 0 and x < img.shape[1] and y >= 0 and y < img.shape[0]:
                 img[x, y] = color
             x += inc
@@ -33,7 +33,7 @@ def draw_line(img, x1, y1, x2, y2, color):
     y = y1
     inc = 1 if y2 > y1 else -1
     while y != y2:
-        x = int(x1 + (y - y1) * m)
+        x = int((y - y1) * m + x1)
         if x >= 0 and x < img.shape[1] and y >= 0 and y < img.shape[0]:
             img[x, y] = color
         y += inc
