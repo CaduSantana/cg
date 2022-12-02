@@ -12,6 +12,7 @@ from PIL import Image
 
 # Desenha uma linha de cor color de (x1, y1) até (x2, y2) em img.
 # Usa estratégias diferentes de acordo com a inclinação m da reta.
+@njit
 def draw_line(img, x1, y1, x2, y2, color):
     dx = x2 - x1
     dy = y2 - y1

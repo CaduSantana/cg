@@ -78,6 +78,7 @@ class Canvas(QLabel):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             a = array(self.image)
+            # TODO: check for boundary
             draw_line(a, self.start.y(), self.start.x(), self.end.y(), self.end.x(), self.color)
             self.image = Image.fromarray(a)
             self.setPixmap(QPixmap.fromImage(ImageQt.ImageQt(self.image)))
