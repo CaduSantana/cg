@@ -23,7 +23,8 @@ def draw_line(img, x1, y1, x2, y2, color):
         inc = 1 if x2 > x1 else -1
         while x != x2:
             y = int(y1 + (x - x1) * m)
-            img[x, y] = color
+            if x >= 0 and x < img.shape[1] and y >= 0 and y < img.shape[0]:
+                img[x, y] = color
             x += inc
         return
     
@@ -33,7 +34,8 @@ def draw_line(img, x1, y1, x2, y2, color):
     inc = 1 if y2 > y1 else -1
     while y != y2:
         x = int(x1 + (y - y1) * m)
-        img[x, y] = color
+        if x >= 0 and x < img.shape[1] and y >= 0 and y < img.shape[0]:
+            img[x, y] = color
         y += inc
 
 # Desenha linhas com Breseham
@@ -46,6 +48,7 @@ def draw_line_bresenham(img, x1, y1, x2, y2, color):
     d = dx - dy
     x = x1
     y = y1
+    # Não precisa verificar o inicial porque ele é sempre dentro da imagem
     img[x, y] = color
     # Usando != porque pode crescer positiva ou negativamente
     while x != x2 or y != y2:
@@ -56,7 +59,8 @@ def draw_line_bresenham(img, x1, y1, x2, y2, color):
         if aux < dx:
             d = d + dx
             y += inc_y
-        img[x, y] = color
+        if x >= 0 and x < img.shape[1] and y >= 0 and y < img.shape[0]:
+            img[x, y] = color
 
 # Checa se um determinado par calculado (x, y) está dentro da imagem img
 # Útil par impedir círculos de "darem a volta" na imagem
