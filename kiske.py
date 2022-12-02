@@ -3,8 +3,9 @@ from numba import njit
 from PIL import Image
 
 # Desenha uma reta de cor 'color' entre os pontos (x1, y1) e (x2, y2)
+# Para linhas mais horizontais
 @njit
-def draw_line(img, x1, y1, x2, y2, color): # Mais vertical
+def draw_line(img, x1, y1, x2, y2, color):
     m = (y2 - y1) / (x2 - x1)
     inc = -1
     if(x1 < x2):
@@ -17,11 +18,11 @@ def draw_line(img, x1, y1, x2, y2, color): # Mais vertical
         x = int((y - y1) / (m + x1))
 
 a = np.zeros((200, 200), dtype=int)
-draw_line(a, 0, 0, 199, 199, 255)
+draw_line(a, 0, 0, 20, 150, 255)
 im = Image.fromarray(a)
-im.show()
+#im.show()
 
-# Forma alternativa (mais horizontal)
+# Para linhas mais verticais
 @njit
 def draw_line2(img, x1, y1, x2, y2, color):
     m = (y2 - y1) / (x2 - x1)
@@ -36,29 +37,32 @@ def draw_line2(img, x1, y1, x2, y2, color):
         y = int((x - x1) * (m + y1))
 
 a = np.zeros((200, 200), dtype=int)
-draw_line2(a, 0, 0, 199, 199, 255)
+draw_line2(a, 0, 0, 20, 150, 255)
 im = Image.fromarray(a)
-im.show()
+#im.show()
 
-# Bresenham
 @njit
 def draw_line_bresenham(img, x1, y1, x2, y2, color):
-    dx = x2 - x1
-    dy = y2 - y1
-    inc = 1
-    if(dy < 0):
-        inc = -1
-        dy = -dy
-    d = 2 * dy - dx
+    dx = abs(x2 - x1)
+    dy = abs(y2 - y1)
+    inc_x = 1 if x1 < x2 else -1
+    inc_y = 1 if y1 < y2 else -1
+    d = dx - dy
+    x = x1
     y = y1
-    for x in range(x1, x2):
+    img[x, y] = color
+    # Usando != porque pode crescer positiva ou negativamente
+    while x != x2 or y != y2:
+        aux = d << 1
+        if aux > -dy:
+            d = d - dy
+            x += inc_x
+        if aux < dx:
+            d = d + dx
+            y += inc_y
         img[x, y] = color
-        if(d > 0):
-            y += inc
-            d -= 2 * dx
-        d += 2 * dy
 
 a = np.zeros((200, 200), dtype=int)
-draw_line_bresenham(a, 0, 0, 199, 199, 255)
+draw_line_bresenham(a, 0, 0, 20, 150, 255)
 im = Image.fromarray(a)
 im.show()
