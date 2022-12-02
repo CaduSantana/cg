@@ -1,8 +1,9 @@
 # Qt draw line when drag and release
 
+import sys
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
-from PySide6.QtCore import *
+from PySide6.QtCore import Qt, QPoint
 from kiske import draw_line, draw_line_bresenham, draw_circle_parametric, draw_circle_bresenham
 from PIL import Image, ImageQt
 from numpy import array
@@ -16,14 +17,18 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Retas e circunferências")
         # Building menuBar
         menubar = self.menuBar()
+        self.canvas = Canvas()
         arquivoMenu = menubar.addMenu("Arquivo")
         abrirAction = QAction("Abrir", self)
         abrirAction.triggered.connect(self.open)
+        salvarAction = QAction("Salvar", self)
+        salvarAction.triggered.connect(self.canvas.save)
+        sairAction = QAction("Sair", self)
+        sairAction.triggered.connect(self.exit)
         arquivoMenu.addAction(abrirAction)
-        arquivoMenu.addAction("Salvar")
-        arquivoMenu.addAction("Sair")
+        arquivoMenu.addAction(salvarAction)
+        arquivoMenu.addAction(sairAction)
         layout = QVBoxLayout()
-        self.canvas = Canvas()
         # Adicionando as operações
         self.opbox = QComboBox()
         self.opbox.addItems(["Reta pela equação", "Reta por Bresenham", "Circunferência pela eq. paramétrica", "Circunferência por Bresenham"])
@@ -35,12 +40,14 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(centralWidget)
     
     def open(self):
-        print("oi")
-        filename, _ = QFileDialog.getOpenFileName(self, "Open Image", "", "Imagens (*.png *.jpg *.bmp)")
+        filename, _ = QFileDialog.getOpenFileName(self, "Abrir imagem", "", "Imagens (*.png *.jpg *.bmp)")
         if not filename:
             return
         image = Image.open(filename).resize(defaultSize)
         self.canvas.loadImage(image)
+
+    def exit(self):
+        self.close()
 
 class Canvas(QLabel):
     def __init__(self, parent=None):
@@ -65,6 +72,12 @@ class Canvas(QLabel):
         self.image = image
         self.setPixmap(QPixmap.fromImage(ImageQt.ImageQt(self.image)))
 
+    def save(self):
+        filename, _ = QFileDialog.getSaveFileName(self, "Salvar imagem", "", "PNG (*.png)")
+        if not filename:
+            return
+        self.image.save(filename)
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.start = QPoint(event.position().x(),event.position().y())
@@ -82,7 +95,6 @@ class Canvas(QLabel):
             if(self.op.__name__ == 'draw_line' or self.op.__name__ == 'draw_line_bresenham'):
                 self.op(a, x1, y1, x2, y2, self.color)
             else:
-                print("imrpime circulo")
                 r = int(((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5)
                 self.op(a, x1, y1, r, self.color)
             self.image = Image.fromarray(a)
@@ -107,7 +119,6 @@ class Canvas(QLabel):
             r = int(((self.start.x() - self.end.x()) ** 2 + (self.start.y() - self.end.y()) ** 2) ** 0.5)
             painter.drawEllipse(self.start, r, r)
 
-import sys
 app = QApplication(sys.argv)
 window = MainWindow()
 window.show()
