@@ -3,9 +3,11 @@
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 from PySide6.QtCore import *
-from kiske import draw_line_bresenham
+from kiske import draw_line, draw_line_bresenham
 from PIL import Image, ImageQt
 from numpy import array
+
+defaultSize = (300, 300)
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -14,9 +16,14 @@ class MainWindow(QMainWindow):
         # Building menuBar
         menubar = self.menuBar()
         arquivoMenu = menubar.addMenu("Arquivo")
+        abrirAction = QAction("Abrir", self)
+        abrirAction.triggered.connect(self.open)
+        arquivoMenu.addAction(abrirAction)
+        arquivoMenu.addAction("Salvar")
+        arquivoMenu.addAction("Sair")
         layout = QVBoxLayout()
         buttons = QHBoxLayout()
-        canvas = Canvas()
+        self.canvas = Canvas()
         self.lineFormulaButton = QPushButton()
         self.lineBresenhamButton = QPushButton()
         self.circleParametricButton = QPushButton()
@@ -26,25 +33,37 @@ class MainWindow(QMainWindow):
         buttons.addWidget(self.circleParametricButton)
         buttons.addWidget(self.circleBresenhamButton)
         layout.addLayout(buttons)
-        layout.addWidget(canvas)
+        layout.addWidget(self.canvas)
         centralWidget = QWidget()
         centralWidget.setLayout(layout)
         self.setCentralWidget(centralWidget)
+    
+    def open(self):
+        print("oi")
+        filename, _ = QFileDialog.getOpenFileName(self, "Open Image", "", "Imagens (*.png *.jpg *.bmp)")
+        if not filename:
+            return
+        image = Image.open(filename).resize(defaultSize)
+        self.canvas.loadImage(image)
 
 class Canvas(QLabel):
     def __init__(self, parent=None):
         super(Canvas, self).__init__(parent)
-        self.setFixedSize(300, 300)
+        self.setFixedSize(*defaultSize)
         self.setMouseTracking(True)
         self.setScaledContents(True)
-        self.image = Image.new("RGB", (300, 300), "black")
-        self.color = (226, 135, 67)
+        self.image = Image.new("RGB", defaultSize, "black")
+        self.color = (255, 0, 0)
         p = QPixmap(self.size())
         p.fill(Qt.black)
         self.setPixmap(p)
         self.start = QPoint()
         self.end = QPoint()
         self.isDrawing = False
+    
+    def loadImage(self, image):
+        self.image = image
+        self.setPixmap(QPixmap.fromImage(ImageQt.ImageQt(self.image)))
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -59,7 +78,7 @@ class Canvas(QLabel):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             a = array(self.image)
-            draw_line_bresenham(a, self.start.y(), self.start.x(), self.end.y(), self.end.x(), self.color)
+            draw_line(a, self.start.y(), self.start.x(), self.end.y(), self.end.x(), self.color)
             self.image = Image.fromarray(a)
             self.setPixmap(QPixmap.fromImage(ImageQt.ImageQt(self.image)))
             self.end = QPoint(event.position().x(),event.position().y())
@@ -73,6 +92,8 @@ class Canvas(QLabel):
             painter = QPainter(self)
             # * = unpacking de tuplas
             painter.setPen(QPen(QColor(*self.color), 1, Qt.SolidLine))
+            # Atenção: este drawLine é apenas um preview! O objeto de verdade é desenhado
+            # no evento mouseReleaseEvent, pelo algoritmo selecionado
             painter.drawLine(self.start, self.end)
 
 import sys
