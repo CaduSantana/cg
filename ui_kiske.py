@@ -78,8 +78,12 @@ class Canvas(QLabel):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             a = array(self.image)
-            # TODO: check for boundary
-            draw_line(a, self.start.y(), self.start.x(), self.end.y(), self.end.x(), self.color)
+            x1, y1, x2, y2 = self.start.x(), self.start.y(), self.end.x(), self.end.y()
+            # Limita as linhas para a imagem
+            # Lembrando que essa limitação é um corte simples. Para uma aproximação da reta,
+            # seria necessário aplicar algum algoritmo de corte de retas.
+            x1, y1, x2, y2 = min(299, max(0, x1)), min(299, max(0, y1)), min(299, max(0, x2)), min(299, max(0, y2))
+            draw_line(a, y1, x1, y2, x2, self.color)
             self.image = Image.fromarray(a)
             self.setPixmap(QPixmap.fromImage(ImageQt.ImageQt(self.image)))
             self.end = QPoint(event.position().x(),event.position().y())
