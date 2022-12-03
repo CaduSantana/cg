@@ -15,9 +15,22 @@ pontos = [
     [100, 100, 100]
 ]
 
-# In cartesian coordinates the x axis is on the bottom, but in image coordinates, the x axis is on the top
-# So we need to flip the y coordinate
-pontos = [[p[0], 150 - p[1], p[2]] for p in pontos]
+# Points if it was a image, not cartesian
+'''pontos = [
+    [50, 0, 0],
+    [50, 0, 100],
+    [0, 100, 0],
+    [0, 200, 0],
+    [100, 200, 0],
+    [100, 200, 100],
+    [0, 200, 100],
+    [100, 100, 0],
+    [0, 100, 100],
+    [100, 100, 100]
+]'''
+
+# Flip the x axis
+#pontos = [[-p[0], 150 - p[1], 100 - p[2]] for p in pontos]
 
 # Flip the points in pontos vertically
 #pontos = np.array(pontos)
@@ -53,7 +66,7 @@ lines = [
 P = np.array([
     [1, 0, 0, 0],
     [0, 1, 0, 0],
-    [0.5, 0.5, 0, 0],
+    [0.7, 0.7, 0, 0],
     [0, 0, 0, 1]
 ])
 
@@ -73,51 +86,8 @@ img = Image.new('RGB', (250, 250), (255, 255, 255))
 draw = ImageDraw.Draw(img)
 
 for line in lines:
-    draw.line((pontos[line[0], 0], pontos[line[0], 1], pontos[line[1], 0], pontos[line[1], 1]), fill=(0, 0, 0))
+    x1, y1 = pontos[line[0], :2]
+    x2, y2 = pontos[line[1], :2]
+    draw.line((y1, x1, y2, x2), fill=(0, 0, 0), width=1)
 
 img.save('t_casinha.png')
-
-# Local scale matrix 10x 3y 4z
-'''S = np.array([
-    [10, 0, 0, 0],
-    [0, 3, 0, 0],
-    [0, 0, 4, 0],
-    [0, 0, 0, 1]
-])
-
-# Applying scale
-pontos = pontos @ S
-
-# Reseting image
-img = Image.new('RGB', (2000, 2000), (255, 255, 255))
-draw = ImageDraw.Draw(img)
-
-for line in lines:
-    draw.line((pontos[line[0], 0], pontos[line[0], 1], pontos[line[1], 0], pontos[line[1], 1]), fill=(0, 0, 0))
-
-img.save('t_casinha_scale.png')'''
-
-# Global scale matrix 4 times
-S = np.array([
-    [1, 0, 0, 0],
-    [0, 1, 0, 0],
-    [0, 0, 1, 0],
-    [0, 0, 0, 4]
-])
-
-# Applying scale
-pontos = pontos @ S
-pontos = np.round(pontos / S[3, 3])
-print()
-print(pontos)
-
-# Reseting image
-img = Image.new('RGB', (250, 250), (255, 255, 255))
-draw = ImageDraw.Draw(img)
-
-for line in lines:
-    draw.line((pontos[line[0], 0], pontos[line[0], 1], pontos[line[1], 0], pontos[line[1], 1]), fill=(0, 0, 0))
-
-draw.line((0, 0, 1000, 100), fill=(255, 0, 0))
-
-img.save('t_casinha_scale.png')

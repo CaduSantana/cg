@@ -74,9 +74,10 @@ def check_pair(img, x, y):
 # Desenha um círculo de centro (xc, yc) e raio r, com cor color, usando a equação paramétrica
 @njit
 def draw_circle_parametric(img, xc, yc, r, color):
-    for a in range(0, 360):
-        x = int(xc + r * np.cos(a))
-        y = int(yc + r * np.sin(a))
+    step = 1 / (r ** 2)
+    for a in np.arange(0, 2 * np.pi, step):
+        x = int(r * np.cos(a) + xc)
+        y = int(r * np.sin(a) + yc)
         if check_pair(img, x, y):
             img[x, y] = color
 

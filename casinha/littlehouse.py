@@ -17,9 +17,6 @@ class LittleHouse:
             [0, 100, 100],
             [100, 100, 100]
         ]
-        # Nas coordenadas cartesianas, o eixo x está na parte inferior, mas nas coordenadas da imagem, o eixo x está na parte superior.
-        # Portanto, precisamos inverter a coordenada y.
-        points = [[p[0], 150 - p[1], p[2]] for p in points]
         self.og_points = np.array(points)
         # Transformando os pontos em coordenadas homogêneas
         self.og_points = np.hstack((self.og_points, np.ones((len(self.og_points), 1))))
@@ -110,14 +107,18 @@ class LittleHouse:
         self.points = self.points @ S
 
     def project(self):
-        # Matriz de projeção cavaleira
+        # Matriz de projeção ortogonal, com z = 0
+        auxpoints = np.copy(self.points)
+        # For each point, subtract y from 500
+        auxpoints[:, 1] = 500 - auxpoints[:, 1]
+
         P = np.array([
             [1, 0, 0, 0],
             [0, 1, 0, 0],
-            [0.5, 0.5, 0, 0],
+            [0, 0, 0, 0],
             [0, 0, 0, 1]
         ])
-        return self.points @ P
+        return auxpoints @ P
 
     def to_QImage(self):
         # Criando uma imagem em branco
