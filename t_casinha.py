@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image, ImageDraw
 
+# Pontos da casinha, exatamente como dados no enunciado
 pontos = [
     [50, 150, 0],
     [50, 150, 100],
@@ -61,7 +62,6 @@ pontos = np.array(pontos)
 pontos = np.hstack((pontos, np.ones((len(pontos), 1))))
 print(pontos)
 
-
 # Applying projection
 pontos = pontos @ P
 
@@ -76,3 +76,23 @@ for line in lines:
     draw.line((pontos[line[0], 0], pontos[line[0], 1], pontos[line[1], 0], pontos[line[1], 1]), fill=(0, 0, 0))
 
 img.save('t_casinha.png')
+
+# Local scale matrix 2x 3y 4z
+S = np.array([
+    [10, 0, 0, 0],
+    [0, 3, 0, 0],
+    [0, 0, 4, 0],
+    [0, 0, 0, 1]
+])
+
+# Applying scale
+pontos = pontos @ S
+
+# Reseting image
+img = Image.new('RGB', (2000, 2000), (255, 255, 255))
+draw = ImageDraw.Draw(img)
+
+for line in lines:
+    draw.line((pontos[line[0], 0], pontos[line[0], 1], pontos[line[1], 0], pontos[line[1], 1]), fill=(0, 0, 0))
+
+img.save('t_casinha_scale.png')
