@@ -75,24 +75,25 @@ class LittleHouse:
 
     # Rotaciona em torno da origem, eixo x, y ou z
     def rotate(self, angle, axis):
+        a = np.deg2rad(angle)
         if(axis == 'x'):
             R = np.array([
                 [1, 0, 0, 0],
-                [0, np.cos(angle), -np.sin(angle), 0],
-                [0, np.sin(angle), np.cos(angle), 0],
+                [0, np.cos(a), -np.sin(a), 0],
+                [0, np.sin(a), np.cos(a), 0],
                 [0, 0, 0, 1]
             ])
         elif(axis == 'y'):
             R = np.array([
-                [np.cos(angle), 0, np.sin(angle), 0],
+                [np.cos(a), 0, np.sin(a), 0],
                 [0, 1, 0, 0],
-                [-np.sin(angle), 0, np.cos(angle), 0],
+                [-np.sin(a), 0, np.cos(a), 0],
                 [0, 0, 0, 1]
             ])
         elif(axis == 'z'):
             R = np.array([
-                [np.cos(angle), -np.sin(angle), 0, 0],
-                [np.sin(angle), np.cos(angle), 0, 0],
+                [np.cos(a), -np.sin(a), 0, 0],
+                [np.sin(a), np.cos(a), 0, 0],
                 [0, 0, 1, 0],
                 [0, 0, 0, 1]
             ])

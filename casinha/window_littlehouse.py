@@ -22,13 +22,14 @@ class DoubleSpinBox(QDoubleSpinBox):
         self.setRange(-1000.0, 1000.0)
 
 class MainWindow(QMainWindow):
-    def __init__(self, imgCasinha, parent=None):
+    def __init__(self, casinha, parent=None):
         super().__init__()
         self.setWindowTitle("Transformações e Projeções")
         self.buttonGroup = RadioButtons()
         mainLayout = QHBoxLayout()
+        self.casinha = casinha
         self.casinhaLabel = QLabel()
-        self.casinhaLabel.setPixmap(QPixmap(imgCasinha))
+        self.casinhaLabel.setPixmap(QPixmap.fromImage(self.casinha.to_QImage()))
         menuLayout = QVBoxLayout()
         # Construindo escala
         menuLayout.addWidget(self.createScale())
@@ -60,8 +61,8 @@ class MainWindow(QMainWindow):
         scaleGlobal = QRadioButton('Global')
         scaleLocal = QRadioButton('Local')
         scaleLocal.setChecked(True)
-        self.buttonGroup.addButton(scaleGlobal)
-        self.buttonGroup.addButton(scaleLocal)
+        self.buttonGroup.addButton(scaleLocal, 0)
+        self.buttonGroup.addButton(scaleGlobal, 1)
         scaleGrid.addWidget(scaleLocal, 1, 0)
         scaleGrid.addWidget(scaleGlobal, 2, 0)
         label = QLabel('X')
@@ -91,7 +92,7 @@ class MainWindow(QMainWindow):
         translateGroup = QGroupBox('Translação')
         translateGrid = QGridLayout()
         translateRadio = QRadioButton()
-        self.buttonGroup.addButton(translateRadio)
+        self.buttonGroup.addButton(translateRadio, 2)
         translateGrid.addWidget(translateRadio, 1, 0)
         label = QLabel('X')
         label.setAlignment(Qt.AlignCenter)
@@ -115,9 +116,9 @@ class MainWindow(QMainWindow):
         rotateGroup = QGroupBox('Rotação')
         rotateGrid = QGridLayout()
         origemRadio = QRadioButton('Origem')
-        self.buttonGroup.addButton(origemRadio)
+        self.buttonGroup.addButton(origemRadio, 3)
         centroRadio = QRadioButton('Centro do objeto')
-        self.buttonGroup.addButton(centroRadio)
+        self.buttonGroup.addButton(centroRadio, 4)
         rotateGrid.addWidget(origemRadio, 0, 0)
         rotateGrid.addWidget(centroRadio, 1, 0)
         rotateGrid.addWidget(QLabel('Eixo'), 0, 1)
@@ -135,7 +136,7 @@ class MainWindow(QMainWindow):
         # Create input for a full 4x4 matrix
         shearingGrid = QGridLayout()
         shearingRadio = QRadioButton()
-        self.buttonGroup.addButton(shearingRadio)
+        self.buttonGroup.addButton(shearingRadio, 5)
         shearingGrid.addWidget(shearingRadio, 0, 0)
         # Matriz para os inputs da matriz de transformação
         self.shearingInputs = [
@@ -148,8 +149,37 @@ class MainWindow(QMainWindow):
         shearingGroup.setLayout(shearingGrid)
         return shearingGroup
 
+    def update_casinha(self):
+        self.casinhaLabel.setPixmap(QPixmap.fromImage(self.casinha.to_QImage()))
+
     def execute(self):
-        print('exe')
+        opcode = self.buttonGroup.checkedId()
+        match opcode:
+            case 0:
+                self.casinha.local_scale(
+                    self.scaleX.value(),
+                    self.scaleY.value(),
+                    self.scaleZ.value()
+                )
+            case 1:
+                self.casinha.global_scale(self.scaleG.value())
+            case 2:
+                self.casinha.translate(
+                    self.translateX.value(),
+                    self.translateY.value(),
+                    self.translateZ.value()
+                )
+            case 3:
+                self.casinha.rotate(
+                    self.centroGraus.value(),
+                    self.origemEixo.currentText().lower()
+                )
+            case 4:
+                print('Rotação em centro')
+            case 5:
+                print('Shearing')
+        self.update_casinha()
 
     def reset(self):
-        print('res')
+        self.casinha.reset()
+        self.update_casinha()
