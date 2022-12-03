@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         filename, _ = QFileDialog.getOpenFileName(self, "Abrir imagem", "", "Imagens (*.png *.jpg *.bmp)")
         if not filename:
             return
-        image = Image.open(filename).resize(defaultSize)
+        image = Image.open(filename).resize(defaultSize).convert("RGB")
         self.canvas.loadImage(image)
 
     def exit(self):
