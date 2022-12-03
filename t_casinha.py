@@ -77,8 +77,8 @@ for line in lines:
 
 img.save('t_casinha.png')
 
-# Local scale matrix 2x 3y 4z
-S = np.array([
+# Local scale matrix 10x 3y 4z
+'''S = np.array([
     [10, 0, 0, 0],
     [0, 3, 0, 0],
     [0, 0, 4, 0],
@@ -94,5 +94,30 @@ draw = ImageDraw.Draw(img)
 
 for line in lines:
     draw.line((pontos[line[0], 0], pontos[line[0], 1], pontos[line[1], 0], pontos[line[1], 1]), fill=(0, 0, 0))
+
+img.save('t_casinha_scale.png')'''
+
+# Global scale matrix 4 times
+S = np.array([
+    [1, 0, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 4]
+])
+
+# Applying scale
+pontos = pontos @ S
+pontos = np.round(pontos / S[3, 3])
+print()
+print(pontos)
+
+# Reseting image
+img = Image.new('RGB', (250, 250), (255, 255, 255))
+draw = ImageDraw.Draw(img)
+
+for line in lines:
+    draw.line((pontos[line[0], 0], pontos[line[0], 1], pontos[line[1], 0], pontos[line[1], 1]), fill=(0, 0, 0))
+
+draw.line((0, 0, 1000, 100), fill=(255, 0, 0))
 
 img.save('t_casinha_scale.png')
