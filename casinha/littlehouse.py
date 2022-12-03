@@ -116,16 +116,18 @@ class LittleHouse:
             [0.5, 0.5, 0, 0],
             [0, 0, 0, 1]
         ])
-        self.points = self.points @ P
+        return self.points @ P
 
     def to_QImage(self):
         # Criando uma imagem em branco
         # TODO: 'adivinhar' tamanho, padding
-        img = Image.new('RGB', (500, 500), (255, 255, 255))
+        img = Image.new('RGB', (500, 500), (0, 0, 0))
         # Desenhando as linhas
         draw = ImageDraw.Draw(img)
         for line in self.lines:
-            p1 = self.points[line[0]]
-            p2 = self.points[line[1]]
-            draw.line((p1[0], p1[1], p2[0], p2[1]), fill=(0, 0, 0))
+            p = self.project()
+            p = p / p[:, 3].reshape(-1, 1)
+            p = p[:, :2]
+            p = np.round(p).astype(int)
+            draw.line((p[line[0]][0], p[line[0]][1], p[line[1]][0], p[line[1]][1]), fill=(0, 255, 0), width=1)
         return ImageQt.ImageQt(img)
