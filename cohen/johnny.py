@@ -27,7 +27,6 @@ class Cohen_Sutherland:
         if not self.active:
             return
         draw = ImageDraw.Draw(self.image)
-        #draw.line((x1, y1, x2, y2), fill=(255, 0, 0))
         res = self.cohen_sutherland(x1, y1, x2, y2)
         if res:
             draw.line(res, fill=(0, 255, 0))

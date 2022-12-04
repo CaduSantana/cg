@@ -132,7 +132,6 @@ class MainWindow(QMainWindow):
 
     def createShearing(self):
         shearingGroup = QGroupBox('Shearing')
-        # Create input for a full 4x4 matrix
         shearingGrid = QGridLayout()
         shearingRadio = QRadioButton()
         self.buttonGroup.addButton(shearingRadio, 5)

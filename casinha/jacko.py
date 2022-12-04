@@ -124,7 +124,6 @@ class LittleHouse:
 
     def to_QImage(self):
         # Criando uma imagem em branco
-        # TODO: 'adivinhar' tamanho, padding
         img = Image.new('RGB', (500, 500), (0, 0, 0))
         # Desenhando as linhas
         draw = ImageDraw.Draw(img)
