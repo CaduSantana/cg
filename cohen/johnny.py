@@ -1,12 +1,6 @@
 import numpy as np
 from PIL import Image, ImageDraw, ImageQt
 
-INSIDE = 0
-LEFT = 1
-RIGHT = 2
-BOTTOM = 4
-TOP = 8
-
 class Cohen_Sutherland:
     def __init__(self):
         self.image = Image.new('RGB', (500, 500), (13,117,172))
@@ -20,13 +14,11 @@ class Cohen_Sutherland:
     # Define uma nova janela de corte
     def set_window(self, x1, y1, x2, y2):
         self.active = True
-        #print("Setting window to ({}, {}) to ({}, {})".format(x1, y1, x2, y2))
         # Lembrando que aqui, com y cresce para baixo, o yb é o maior y
         self.xl = max(x1, x2)
         self.xr = min(x1, x2)
         self.yb = max(y1, y2)
         self.yt = min(y1, y2)
-        print("Window set to ({}, {}) to ({}, {})".format(self.xl, self.yb, self.xr, self.yt))
         # Desenha a janela na tela
         draw = ImageDraw.Draw(self.image)
         draw.rectangle((x1, y1, x2, y2), fill=(0, 0, 0))
@@ -35,30 +27,22 @@ class Cohen_Sutherland:
     def draw_line(self, x1, y1, x2, y2):
         if not self.active:
             return
-        print("Drawing line from ({}, {}) to ({}, {})".format(x1, y1, x2, y2))
         draw = ImageDraw.Draw(self.image)
         #draw.line((x1, y1, x2, y2), fill=(255, 0, 0))
         res = self.cohen_sutherland(x1, y1, x2, y2)
-        print(res)
         if res:
             draw.line(res, fill=(0, 255, 0))
-        '''draw = ImageDraw.Draw(self.image)
-        res = self.cohen_sutherland((x1, y1), (x2, y2))
-        draw.line((x1, y1, x2, y2), fill=(255, 0, 0))
-        xa, ya, xb, yb = res
-        draw.line((xa, ya, xb,yb), fill=(255, 255, 255))'''
 
     def point_classify(self, x,y):
-        code = INSIDE
+        code = 0
         if x < self.xr:
-            code |= LEFT
+            code |= 1
         elif x > self.xl:
-            code |= RIGHT
+            code |= 2
         if y < self.yt:
-            code |= BOTTOM
+            code |= 4
         elif y > self.yb:
-            code |= TOP
-        
+            code |= 8
         return code
 
     # O algoritmo de Cohen-Sutherland, propriamente dito.
@@ -85,19 +69,19 @@ class Cohen_Sutherland:
             cod_tr = cod1 if cod1 != 0 else cod2
             # Fazendo direto ao invés de calcular m para evitar divisão por zero
             # Cima
-            if cod_tr & TOP:
+            if cod_tr & 8:
                 x = x1 + (x2 - x1) * (self.yb - y1) / (y2 - y1)
                 y = self.yb
             # Baixo
-            elif cod_tr & BOTTOM:
+            elif cod_tr & 4:
                 x = x1 + (x2 - x1) * (self.yt - y1) / (y2 - y1)
                 y = self.yt
             # Direita
-            elif cod_tr & RIGHT:
+            elif cod_tr & 2:
                 x = self.xl
                 y = y1 + (y2 - y1) * (self.xl - x1) / (x2 - x1)   
             # Esquerda 
-            elif cod_tr & LEFT:
+            elif cod_tr & 1:
                 x = self.xr
                 y = y1 + (y2 - y1) * (self.xr - x1) / (x2 - x1)
             # Atualiza o código do ponto que precisava de ajuste
