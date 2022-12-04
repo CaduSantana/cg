@@ -1,19 +1,20 @@
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageQt
 
 class Cohen_Sutherland:
     def __init__(self):
-        self.image = Image.new('RGB', (500, 500), (13,117,172))
+        self.background = (13,117,172)
+        self.image = Image.new('RGB', (500, 500), self.background)
         # Inicializando as variáveis da janela
         self.xl = 0
         self.xr = 0
         self.yb = 0
         self.yt = 0
+        self.active = False
     
     # Define uma nova janela de corte
     def set_window(self, x1, y1, x2, y2):
-        #print("Setting window to ({}, {}) to ({}, {})".format(x1, y1, x2, y2))
-        # Lembrando que aqui, com y cresce para baixo, o yb é o maior y
+        self.active = True
         self.xl = max(x1, x2)
         self.xr = min(x1, x2)
         self.yb = max(y1, y2)
@@ -24,11 +25,14 @@ class Cohen_Sutherland:
 
     # Desenha uma reta entre (x1, y1) e (x2, y2), cortando-a com a janela de corte
     def draw_line(self, x1, y1, x2, y2):
+        if not self.active:
+            return
         draw = ImageDraw.Draw(self.image)
         draw.line((x1, y1, x2, y2), fill=(255, 0, 0))
         res = self.cohen_sutherland((x1, y1), (x2, y2))
-        if res:
-            draw.line(res[:4], fill=(0, 255, 0))
+        if not res:
+            return
+        draw.line(res, fill=(0, 255, 0))
 
     def point_classify(self, x,y):
         c = 0b0000
@@ -59,7 +63,7 @@ class Cohen_Sutherland:
             # Quando ambos estiverem na janela de corte
             # (ou se naturalmente já estiverem)
             if cod[0] == 0 and cod[1] == 0:
-                return (p[0]['x'], p[0]['y'], p[1]['x'], p[1]['y'], True)
+                return (p[0]['x'], p[0]['y'], p[1]['x'], p[1]['y'])
             # Se ambos estiverem fora da janela de corte
             elif (cod[0] & cod[1]) != 0:
                 return False
@@ -90,15 +94,10 @@ class Cohen_Sutherland:
             p[i_adj]['y'] = y
             cod[i_adj] = self.point_classify(p[0]['x'], p[0]['y'])
 
-    def show(self):
-        self.image.show()
+    def clear(self):
+        # Desativa o desenho de retas até que uma nova janela de corte seja definida
+        self.active = False
+        self.image.paste(self.background, [0, 0, self.image.size[0], self.image.size[1]])
 
-c = Cohen_Sutherland()
-c.set_window(100, 100, 400, 400)
-c.draw_line(300, 450, 400, 20)
-c.draw_line(110, 30, 50, 400)
-c.draw_line(200, 450, 250, 60)
-c.draw_line(240, 440, 110, 80)
-c.draw_line(60, 320, 440, 240)
-c.draw_line(440, 380, 90, 340)
-c.show()
+    def to_QImage(self):
+        return ImageQt.ImageQt(self.image)
