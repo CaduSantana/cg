@@ -134,7 +134,7 @@ class Cohen_Sutherland:
     def clear(self):
         # Desativa o desenho de retas até que uma nova janela de corte seja definida
         self.active = False
-        self.image.paste(self.background, [0, 0, self.image.size[0], self.image.size[1]])
+        self.image.paste((13,117,172), [0, 0, self.image.size[0], self.image.size[1]])
         
     def to_QImage(self):
         return ImageQt.ImageQt(self.image)

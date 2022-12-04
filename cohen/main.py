@@ -11,11 +11,18 @@ class MainWindow(QMainWindow):
         mainLayout = QVBoxLayout()
         self.label = QLabel("Para começar, desenhe uma janela.")
         self.canvas = Canvas(self)
+        self.clearButton = QPushButton("Limpar")
         mainLayout.addWidget(self.label)
         mainLayout.addWidget(self.canvas)
+        mainLayout.addWidget(self.clearButton)
+        self.clearButton.clicked.connect(self.clear)
         widget = QWidget()
         widget.setLayout(mainLayout)
         self.setCentralWidget(widget)
+
+    def clear(self):
+        self.label.setText("Para começar, desenhe uma janela.")
+        self.canvas.clear()
 
 class Canvas(QLabel):
     def __init__(self, parent=None):
@@ -72,6 +79,12 @@ class Canvas(QLabel):
                 return
             painter.setPen(QPen(QColor(*self.lineColor), 1, Qt.SolidLine))
             painter.drawLine(self.start, self.end)
+
+    def clear(self):
+        self.cs.clear()
+        self.isDrawingWindow = True
+        self.setPixmap(QPixmap.fromImage(self.cs.to_QImage()))
+        self.update()
 
 app = QApplication([])
 window = MainWindow()
