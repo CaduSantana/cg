@@ -65,61 +65,57 @@ class Cohen_Sutherland:
     # Retorna o (x1, y1, x2, y2) da reta cortada com a janela de corte estabelecida,
     # ou False caso a reta esteja inteiramente fora da janela de corte.
     def cohen_sutherland(self, x1, y1, x2, y2):
-        # compute region codes for P1, P2
-        xMax, yMax, xMin, yMin = self.xl, self.yb, self.xr, self.yt
-        codeA = self.point_classify(x1, y1)
-        codeB = self.point_classify(x2, y2)
-        
+        cod1, cod2 = self.point_classify(x1, y1), self.point_classify(x2, y2)
+        # Uma abordagem para o algoritmo de Cohen-Sutherland
+        # que usa um loop para ajustar os (x, y) de cada ponto até
+        # que ambos estejam dentro da janela de corte.
+        # O algoritmo vai, no máximo, precisar ajustar 4 pontos.
         while True:
-            # if both endpoints lie within rectangle
-            if codeA == 0 and codeB == 0:
+            # Quando ambos estiverem na janela de corte
+            # (ou se naturalmente já estiverem)
+            if cod1 == 0 and cod2 == 0:
                 return (x1, y1, x2, y2, True)
-            
-            # if both endpoints are outside rectangle
-            elif (codeA & codeB) != 0:
+            # Se ambos estiverem fora da janela de corte
+            elif (cod1 & cod2) != 0:
                 return False
 
-            # line needs clipping because at least
-            # one of the points is outside the rectangle
-            x = 1.0
-            y = 1.0
-            # we find which of the points is outside
-            if codeA != 0:
-                codeOut = codeA
+            # Se ainda precisarem de ajustes, usamos as fórmulas
+            x, y = None, None
+            # Tratamos apenas os pontos que precisam de ajuste
+            # (conseguimos saber se precisa ou não pelo código)
+            if cod1 != 0:
+                codeOut = cod1
             else:
-                codeOut = codeB
-                
-            m = (y2 - y1) / (x2 - x1)
+                codeOut = cod2
+            
+            # Fazendo direto ao invés de calcular m para evitar divisão por zero
+            # Cima
             if codeOut & TOP:
-                # point is above the clip rectangle
-                x = x1 + (1 / m) * (yMax - y1)
-                y = yMax
-                
+                x = x1 + (x2 - x1) * (self.yb - y1) / (y2 - y1)
+                y = self.yb
+            # Baixo
             elif codeOut & BOTTOM:
-                # point is below the clip rectangle
-                x = x1 + (1 / m) * (yMin - y1)
-                y = yMin
-                    
+                x = x1 + (x2 - x1) * (self.yt - y1) / (y2 - y1)
+                y = self.yt
+            # Direita
             elif codeOut & RIGHT:
-                # point is to the right of the clip rectangle
-                y = y1 + m * (xMax - x1)
-                x = xMax
-                    
+                x = self.xl
+                y = y1 + (y2 - y1) * (self.xl - x1) / (x2 - x1)   
+            # Esquerda 
             elif codeOut & LEFT:
-                # point is to the left of the clip rectangle
-                y = y1 + m * (xMin - x1)
-                x = xMin
-                    
-            # now we replace point outside rectangle by
-            # intersection point
-            if codeOut == codeA:
+                x = self.xr
+                y = y1 + (y2 - y1) * (self.xr - x1) / (x2 - x1)
+            
+            # Atualiza o código do ponto que precisava de ajuste
+            if codeOut == cod1:
                 x1 = x
                 y1 = y
-                codeA = self.point_classify(x1, y1)
-            else:
-                x2 = x
-                y2 = y
-                codeB = self.point_classify(x2, y2)
+                cod1 = self.point_classify(x1, y1)
+                continue
+
+            x2 = x
+            y2 = y
+            cod2 = self.point_classify(x2, y2)
     
     def clear(self):
         # Desativa o desenho de retas até que uma nova janela de corte seja definida
