@@ -48,15 +48,15 @@ class Cohen_Sutherland:
         xa, ya, xb, yb = res
         draw.line((xa, ya, xb,yb), fill=(255, 255, 255))'''
 
-    def point_classify(self, x,y, xMax, yMax, xMin, yMin):
+    def point_classify(self, x,y):
         code = INSIDE
-        if x < xMin:
+        if x < self.xr:
             code |= LEFT
-        elif x > xMax:
+        elif x > self.xl:
             code |= RIGHT
-        if y < yMin:
+        if y < self.yt:
             code |= BOTTOM
-        elif y > yMax:
+        elif y > self.yb:
             code |= TOP
         
         return code
@@ -67,8 +67,8 @@ class Cohen_Sutherland:
     def cohen_sutherland(self, x1, y1, x2, y2):
         # compute region codes for P1, P2
         xMax, yMax, xMin, yMin = self.xl, self.yb, self.xr, self.yt
-        codeA = self.point_classify(x1, y1, xMax, yMax, xMin, yMin)
-        codeB = self.point_classify(x2, y2, xMax, yMax, xMin, yMin)
+        codeA = self.point_classify(x1, y1)
+        codeB = self.point_classify(x2, y2)
         
         while True:
             # if both endpoints lie within rectangle
@@ -78,51 +78,49 @@ class Cohen_Sutherland:
             # if both endpoints are outside rectangle
             elif (codeA & codeB) != 0:
                 return False
-            
-            # Some segment lies within the rectangle
+
+            # line needs clipping because at least
+            # one of the points is outside the rectangle
+            x = 1.0
+            y = 1.0
+            # we find which of the points is outside
+            if codeA != 0:
+                codeOut = codeA
             else:
-                # line needs clipping because at least
-                # one of the points is outside the rectangle
-                x = 1.0
-                y = 1.0
-                # we find which of the points is outside
-                if codeA != 0:
-                    codeOut = codeA
-                else:
-                    codeOut = codeB
+                codeOut = codeB
                 
-                # now we find the intersection point using
-                # some formulas
-                if codeOut & TOP:
-                    # point is above the clip rectangle
-                    x = x1 + (x2 - x1) * (yMax - y1) / (y2 - y1)
-                    y = yMax
+            # now we find the intersection point using
+            # some formulas
+            if codeOut & TOP:
+                # point is above the clip rectangle
+                x = x1 + (x2 - x1) * (yMax - y1) / (y2 - y1)
+                y = yMax
                 
-                elif codeOut & BOTTOM:
-                    # point is below the clip rectangle
-                    x = x1 + (x2 - x1) * (yMin - y1) / (y2 - y1)
-                    y = yMin
+            elif codeOut & BOTTOM:
+                # point is below the clip rectangle
+                x = x1 + (x2 - x1) * (yMin - y1) / (y2 - y1)
+                y = yMin
                     
-                elif codeOut & RIGHT:
-                    # point is to the right of the clip rectangle
-                    y = y1 + (y2 - y1) * (xMax - x1) / (x2 - x1)
-                    x = xMax
+            elif codeOut & RIGHT:
+                # point is to the right of the clip rectangle
+                y = y1 + (y2 - y1) * (xMax - x1) / (x2 - x1)
+                x = xMax
                     
-                elif codeOut & LEFT:
-                    # point is to the left of the clip rectangle
-                    y = y1 + (y2 - y1) * (xMin - x1) / (x2 - x1)
-                    x = xMin
+            elif codeOut & LEFT:
+                # point is to the left of the clip rectangle
+                y = y1 + (y2 - y1) * (xMin - x1) / (x2 - x1)
+                x = xMin
                     
-                # now we replace point outside rectangle by
-                # intersection point
-                if codeOut == codeA:
-                    x1 = x
-                    y1 = y
-                    codeA = self.point_classify(x1, y1, xMax, yMax, xMin, yMin)
-                else:
-                    x2 = x
-                    y2 = y
-                    codeB = self.point_classify(x2, y2, xMax, yMax, xMin, yMin)
+            # now we replace point outside rectangle by
+            # intersection point
+            if codeOut == codeA:
+                x1 = x
+                y1 = y
+                codeA = self.point_classify(x1, y1)
+            else:
+                x2 = x
+                y2 = y
+                codeB = self.point_classify(x2, y2)
     
     def clear(self):
         # Desativa o desenho de retas até que uma nova janela de corte seja definida
