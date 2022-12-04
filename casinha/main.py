@@ -1,5 +1,5 @@
 import sys
-from littlehouse import LittleHouse
+from jacko import LittleHouse
 from window_littlehouse import MainWindow
 from PySide6.QtWidgets import QApplication
 
