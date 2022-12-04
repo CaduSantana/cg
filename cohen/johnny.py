@@ -1,4 +1,3 @@
-import numpy as np
 from PIL import Image, ImageDraw, ImageQt
 
 class Cohen_Sutherland:
