@@ -1,10 +1,28 @@
 import numpy as np
 from PIL import Image, ImageDraw, ImageQt
 
+INSIDE = 0
+LEFT = 1
+RIGHT = 2
+BOTTOM = 4
+TOP = 8
+
+def getPoint(x,y, xMax, yMax, xMin, yMin):
+    code = INSIDE
+    if x < xMin:
+        code |= LEFT
+    elif x > xMax:
+        code |= RIGHT
+    if y < yMin:
+        code |= BOTTOM
+    elif y > yMax:
+        code |= TOP
+    
+    return code
+
 class Cohen_Sutherland:
     def __init__(self):
-        self.background = (13,117,172)
-        self.image = Image.new('RGB', (500, 500), self.background)
+        self.image = Image.new('RGB', (500, 500), (13,117,172))
         # Inicializando as variáveis da janela
         self.xl = 0
         self.xr = 0
@@ -15,10 +33,13 @@ class Cohen_Sutherland:
     # Define uma nova janela de corte
     def set_window(self, x1, y1, x2, y2):
         self.active = True
+        #print("Setting window to ({}, {}) to ({}, {})".format(x1, y1, x2, y2))
+        # Lembrando que aqui, com y cresce para baixo, o yb é o maior y
         self.xl = max(x1, x2)
         self.xr = min(x1, x2)
         self.yb = max(y1, y2)
         self.yt = min(y1, y2)
+        print("Window set to ({}, {}) to ({}, {})".format(self.xl, self.yb, self.xr, self.yt))
         # Desenha a janela na tela
         draw = ImageDraw.Draw(self.image)
         draw.rectangle((x1, y1, x2, y2), fill=(0, 0, 0))
@@ -27,77 +48,94 @@ class Cohen_Sutherland:
     def draw_line(self, x1, y1, x2, y2):
         if not self.active:
             return
+        print("Drawing line from ({}, {}) to ({}, {})".format(x1, y1, x2, y2))
         draw = ImageDraw.Draw(self.image)
-        draw.line((x1, y1, x2, y2), fill=(255, 0, 0))
+        #draw.line((x1, y1, x2, y2), fill=(255, 0, 0))
+        res = self.cohen_sutherland(x1, y1, x2, y2)
+        print(res)
+        if res:
+            draw.line(res[:4], fill=(0, 255, 0))
+        '''draw = ImageDraw.Draw(self.image)
         res = self.cohen_sutherland((x1, y1), (x2, y2))
-        if not res:
-            return
-        draw.line(res, fill=(0, 255, 0))
-
-    def point_classify(self, x,y):
-        c = 0b0000
-
-        if x < self.xr:
-            c |= 0b0001
-        elif x > self.xl:
-            c |= 0b0010
-        
-        if y < self.yt:
-            c |= 0b0100
-        elif y > self.yb:
-            c |= 0b1000
-        
-        return c
+        draw.line((x1, y1, x2, y2), fill=(255, 0, 0))
+        xa, ya, xb, yb = res
+        draw.line((xa, ya, xb,yb), fill=(255, 255, 255))'''
 
     # O algoritmo de Cohen-Sutherland, propriamente dito.
     # Retorna o (x1, y1, x2, y2) da reta cortada com a janela de corte estabelecida,
     # ou False caso a reta esteja inteiramente fora da janela de corte.
-    def cohen_sutherland(self, p1, p2):
-        p = [{'x': p1[0], 'y': p1[1]}, {'x': p2[0], 'y': p2[1]}]
-        cod = [self.point_classify(p[i]['x'], p[i]['y']) for i in range(2)]
-        # Uma abordagem para o algoritmo de Cohen-Sutherland
-        # que usa um loop para ajustar os (x, y) de cada ponto até
-        # que ambos estejam dentro da janela de corte.
-        # O algoritmo vai, no máximo, precisar ajustar 4 pontos.
-        for _ in range(4):
-            # Quando ambos estiverem na janela de corte
-            # (ou se naturalmente já estiverem)
-            if cod[0] == 0 and cod[1] == 0:
-                return (p[0]['x'], p[0]['y'], p[1]['x'], p[1]['y'])
-            # Se ambos estiverem fora da janela de corte
-            elif (cod[0] & cod[1]) != 0:
-                return False
-            # Se ainda precisarem de ajustes, usamos as fórmulas
-            x, y = (None, None)
-            # Tratamos apenas os pontos que precisam de ajuste
-            # Salvamos o índice do código do ponto que precisa de ajuste
-            i_adj = 0 if cod[0] != 0 else 1
-            m = (p[1]['y'] - p[0]['y']) / (p[1]['x'] - p[0]['x'])
-            # Esquerda
-            if cod[i_adj] & 0b0001:
-                x = self.xr
-                y = p[i_adj]['y'] + m * (self.xr - p[i_adj]['x'])  
-            # Direita
-            elif cod[i_adj] & 0b0010:
-                x = self.xl
-                y = p[i_adj]['y'] + m * (self.xl - p[i_adj]['x']) 
-            # Baixo
-            elif cod[i_adj] & 0b0100:
-                x = p[i_adj]['x'] + (self.yt - p[i_adj]['y']) / m
-                y = self.yt
-            # Cima
-            elif cod[i_adj] & 0b1000:
-                x = p[i_adj]['x'] + (self.yb - p[i_adj]['y']) / m
-                y = self.yb
-            # Atualiza o código do ponto que precisava de ajuste
-            p[i_adj]['x'] = x
-            p[i_adj]['y'] = y
-            cod[i_adj] = self.point_classify(p[0]['x'], p[0]['y'])
+    def cohen_sutherland(self, x1, y1, x2, y2):
+        # compute region codes for P1, P2
+        xMax, yMax, xMin, yMin = self.xl, self.yb, self.xr, self.yt
+        codeA = getPoint(x1, y1, xMax, yMax, xMin, yMin)
+        codeB = getPoint(x2, y2, xMax, yMax, xMin, yMin)
+        isInside = False
+        
+        while True:
+            # if both endpoints lie within rectangle
+            if codeA == 0 and codeB == 0:
+                isInside = True
+                break
+            
+            # if both endpoints are outside rectangle
+            elif (codeA & codeB) != 0:
+                break
+            
+            # Some segment lies within the rectangle
+            else:
+                # line needs clipping because at least
+                # one of the points is outside the rectangle
+                x = 1.0
+                y = 1.0
+                # we find which of the points is outside
+                if codeA != 0:
+                    codeOut = codeA
+                else:
+                    codeOut = codeB
+                
+                # now we find the intersection point using
+                # some formulas
+                if codeOut & TOP:
+                    # point is above the clip rectangle
+                    x = x1 + (x2 - x1) * (yMax - y1) / (y2 - y1)
+                    y = yMax
+                
+                elif codeOut & BOTTOM:
+                    # point is below the clip rectangle
+                    x = x1 + (x2 - x1) * (yMin - y1) / (y2 - y1)
+                    y = yMin
+                    
+                elif codeOut & RIGHT:
+                    # point is to the right of the clip rectangle
+                    y = y1 + (y2 - y1) * (xMax - x1) / (x2 - x1)
+                    x = xMax
+                    
+                elif codeOut & LEFT:
+                    # point is to the left of the clip rectangle
+                    y = y1 + (y2 - y1) * (xMin - x1) / (x2 - x1)
+                    x = xMin
+                    
+                # now we replace point outside rectangle by
+                # intersection point
+                if codeOut == codeA:
+                    x1 = x
+                    y1 = y
+                    codeA = getPoint(x1, y1, xMax, yMax, xMin, yMin)
+                else:
+                    x2 = x
+                    y2 = y
+                    codeB = getPoint(x2, y2, xMax, yMax, xMin, yMin)
 
+        if isInside:
+            return (x1, y1, x2, y2, True)
+        else:
+            return False
+    
     def clear(self):
         # Desativa o desenho de retas até que uma nova janela de corte seja definida
         self.active = False
         self.image.paste(self.background, [0, 0, self.image.size[0], self.image.size[1]])
-
+        
     def to_QImage(self):
         return ImageQt.ImageQt(self.image)
+
