@@ -107,15 +107,14 @@ class LittleHouse:
         self.points = self.points @ S
 
     def project(self):
-        # Matriz de projeção ortogonal, com z = 0
         auxpoints = np.copy(self.points)
-        # For each point, subtract y from 500
-        auxpoints[:, 1] = 500 - auxpoints[:, 1]
+        # Subtract y from 500
+        auxpoints[:, 1] = 499 - auxpoints[:, 1]
 
         P = np.array([
             [1, 0, 0, 0],
             [0, 1, 0, 0],
-            [0, 0, 0, 0],
+            [np.cos(-np.pi / 4.0), np.sin(-np.pi / 4.0), 0, 0],
             [0, 0, 0, 1]
         ])
         return auxpoints @ P
@@ -128,7 +127,6 @@ class LittleHouse:
         draw = ImageDraw.Draw(img)
         for line in self.lines:
             p = self.project()
-            p = p / p[:, 3].reshape(-1, 1)
             p = p[:, :2]
             p = np.round(p).astype(int)
             draw.line((p[line[0]][0], p[line[0]][1], p[line[1]][0], p[line[1]][1]), fill=(0, 255, 0), width=1)
