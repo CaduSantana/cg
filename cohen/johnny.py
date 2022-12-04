@@ -31,17 +31,17 @@ class Cohen_Sutherland:
             draw.line(res[:4], fill=(0, 255, 0))
 
     def point_classify(self, x,y):
-        c = 0
+        c = 0b0000
 
         if x < self.xr:
-            c |= 1
+            c |= 0b0001
         elif x > self.xl:
-            c |= 2
+            c |= 0b0010
         
         if y < self.yt:
-            c |= 4
+            c |= 0b0100
         elif y > self.yb:
-            c |= 8
+            c |= 0b1000
         
         return c
 
@@ -69,22 +69,22 @@ class Cohen_Sutherland:
             # Salvamos o índice do código do ponto que precisa de ajuste
             i_adj = 0 if cod[0] != 0 else 1
             m = (p[1]['y'] - p[0]['y']) / (p[1]['x'] - p[0]['x'])
-            # Cima
-            if cod[i_adj] & 8:
-                x = p[i_adj]['x'] + (self.yb - p[i_adj]['y']) / m
-                y = self.yb
+            # Esquerda
+            if cod[i_adj] & 0b0001:
+                x = self.xr
+                y = p[i_adj]['y'] + m * (self.xr - p[i_adj]['x'])  
+            # Direita
+            elif cod[i_adj] & 0b0010:
+                x = self.xl
+                y = p[i_adj]['y'] + m * (self.xl - p[i_adj]['x']) 
             # Baixo
-            elif cod[i_adj] & 4:
+            elif cod[i_adj] & 0b0100:
                 x = p[i_adj]['x'] + (self.yt - p[i_adj]['y']) / m
                 y = self.yt
-            # Direita
-            elif cod[i_adj] & 2:
-                y = p[i_adj]['y'] + m * (self.xl - p[i_adj]['x'])
-                x = self.xl
-            # Esquerda
-            elif cod[i_adj] & 1:
-                y = p[i_adj]['y'] + m * (self.xr - p[i_adj]['x'])
-                x = self.xr   
+            # Cima
+            elif cod[i_adj] & 0b1000:
+                x = p[i_adj]['x'] + (self.yb - p[i_adj]['y']) / m
+                y = self.yb
             # Atualiza o código do ponto que precisava de ajuste
             p[i_adj]['x'] = x
             p[i_adj]['y'] = y
