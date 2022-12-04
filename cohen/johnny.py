@@ -7,19 +7,6 @@ RIGHT = 2
 BOTTOM = 4
 TOP = 8
 
-def getPoint(x,y, xMax, yMax, xMin, yMin):
-    code = INSIDE
-    if x < xMin:
-        code |= LEFT
-    elif x > xMax:
-        code |= RIGHT
-    if y < yMin:
-        code |= BOTTOM
-    elif y > yMax:
-        code |= TOP
-    
-    return code
-
 class Cohen_Sutherland:
     def __init__(self):
         self.image = Image.new('RGB', (500, 500), (13,117,172))
@@ -61,25 +48,36 @@ class Cohen_Sutherland:
         xa, ya, xb, yb = res
         draw.line((xa, ya, xb,yb), fill=(255, 255, 255))'''
 
+    def point_classify(self, x,y, xMax, yMax, xMin, yMin):
+        code = INSIDE
+        if x < xMin:
+            code |= LEFT
+        elif x > xMax:
+            code |= RIGHT
+        if y < yMin:
+            code |= BOTTOM
+        elif y > yMax:
+            code |= TOP
+        
+        return code
+
     # O algoritmo de Cohen-Sutherland, propriamente dito.
     # Retorna o (x1, y1, x2, y2) da reta cortada com a janela de corte estabelecida,
     # ou False caso a reta esteja inteiramente fora da janela de corte.
     def cohen_sutherland(self, x1, y1, x2, y2):
         # compute region codes for P1, P2
         xMax, yMax, xMin, yMin = self.xl, self.yb, self.xr, self.yt
-        codeA = getPoint(x1, y1, xMax, yMax, xMin, yMin)
-        codeB = getPoint(x2, y2, xMax, yMax, xMin, yMin)
-        isInside = False
+        codeA = self.point_classify(x1, y1, xMax, yMax, xMin, yMin)
+        codeB = self.point_classify(x2, y2, xMax, yMax, xMin, yMin)
         
         while True:
             # if both endpoints lie within rectangle
             if codeA == 0 and codeB == 0:
-                isInside = True
-                break
+                return (x1, y1, x2, y2, True)
             
             # if both endpoints are outside rectangle
             elif (codeA & codeB) != 0:
-                break
+                return False
             
             # Some segment lies within the rectangle
             else:
@@ -120,16 +118,11 @@ class Cohen_Sutherland:
                 if codeOut == codeA:
                     x1 = x
                     y1 = y
-                    codeA = getPoint(x1, y1, xMax, yMax, xMin, yMin)
+                    codeA = self.point_classify(x1, y1, xMax, yMax, xMin, yMin)
                 else:
                     x2 = x
                     y2 = y
-                    codeB = getPoint(x2, y2, xMax, yMax, xMin, yMin)
-
-        if isInside:
-            return (x1, y1, x2, y2, True)
-        else:
-            return False
+                    codeB = self.point_classify(x2, y2, xMax, yMax, xMin, yMin)
     
     def clear(self):
         # Desativa o desenho de retas até que uma nova janela de corte seja definida
