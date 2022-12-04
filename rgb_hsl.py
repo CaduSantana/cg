@@ -1,8 +1,7 @@
 import sys
 import numpy as np
 from numba import njit
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPalette, QColor
+from PySide6.QtGui import QPalette, QColor, QIcon
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QMainWindow, QGridLayout, QSpinBox
 
 # Converte RGB para HSL
@@ -69,6 +68,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("CG - Conversor RGB-HSL")
+        self.setWindowIcon(QIcon("icons/gio.ico"))
         centralWidget = QWidget()
         centralLayout = QVBoxLayout()
         valoresLayout = QGridLayout()
