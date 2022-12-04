@@ -103,20 +103,24 @@ class LittleHouse:
         self.rotate(angle, axis)
         self.translate(center[0], center[1], center[2])
 
-    def shearing(self, S):
+    def shearing(self, s):
+        S = np.array(s)
+        print(S)
         self.points = self.points @ S
 
     def project(self):
+        # Ajuste para o uma origem igual a do plano cartesiano
         auxpoints = np.copy(self.points)
-        # Subtract y from 500
         auxpoints[:, 1] = 499 - auxpoints[:, 1]
 
+        # Projeção cavaleira 'invertida' (z cresce para trás)
         P = np.array([
             [1, 0, 0, 0],
             [0, 1, 0, 0],
             [np.cos(-np.pi / 4.0), np.sin(-np.pi / 4.0), 0, 0],
             [0, 0, 0, 1]
         ])
+    
         return auxpoints @ P
 
     def to_QImage(self):

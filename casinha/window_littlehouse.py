@@ -175,9 +175,14 @@ class MainWindow(QMainWindow):
                     self.origemEixo.currentText().lower()
                 )
             case 4:
-                print('Rotação em centro')
+                self.casinha.rotate_center(
+                    self.centroGraus.value(),
+                    self.origemEixo.currentText().lower()
+                )
             case 5:
-                print('Shearing')
+                self.casinha.shearing(
+                    [[self.shearingInputs[j][i].value() for i in range(4)] for j in range(4)]
+                )
         self.update_casinha()
 
     def reset(self):
