@@ -105,7 +105,6 @@ class LittleHouse:
 
     def shearing(self, s):
         S = np.array(s)
-        print(S)
         self.points = self.points @ S
 
     def project(self):
