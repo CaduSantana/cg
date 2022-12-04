@@ -7,6 +7,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Cohen-Sutherland")
+        self.setWindowIcon(QIcon("icons/johnny.ico"))
 
         mainLayout = QVBoxLayout()
         self.label = QLabel("Para começar, desenhe uma janela.")

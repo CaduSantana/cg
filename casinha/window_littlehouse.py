@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
     def __init__(self, casinha, parent=None):
         super().__init__()
         self.setWindowTitle("Transformações e Projeções")
+        self.setWindowIcon(QIcon("icons/jacko.ico"))
         self.buttonGroup = RadioButtons()
         mainLayout = QHBoxLayout()
         self.casinha = casinha

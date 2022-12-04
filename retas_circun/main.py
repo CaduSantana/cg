@@ -1,6 +1,6 @@
 import sys
 from PySide6.QtWidgets import QColorDialog, QApplication, QWidget, QPushButton, QHBoxLayout, QLabel, QVBoxLayout, QMainWindow, QFileDialog, QComboBox
-from PySide6.QtGui import QColor, QPixmap, QPainter, QPen, QAction, QPalette
+from PySide6.QtGui import QColor, QPixmap, QPainter, QPen, QAction, QPalette, QIcon
 from PySide6.QtCore import Qt, QPoint
 from kiske import draw_line, draw_line_bresenham, draw_circle_parametric, draw_circle_bresenham
 from PIL import Image, ImageQt
@@ -13,6 +13,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Retas e circunferências")
+        self.setWindowIcon(QIcon("icons/kiske.ico"))
         # Building menuBar
         menubar = self.menuBar()
         self.canvas = Canvas()
