@@ -89,26 +89,25 @@ class Cohen_Sutherland:
             else:
                 codeOut = codeB
                 
-            # now we find the intersection point using
-            # some formulas
+            m = (y2 - y1) / (x2 - x1)
             if codeOut & TOP:
                 # point is above the clip rectangle
-                x = x1 + (x2 - x1) * (yMax - y1) / (y2 - y1)
+                x = x1 + (1 / m) * (yMax - y1)
                 y = yMax
                 
             elif codeOut & BOTTOM:
                 # point is below the clip rectangle
-                x = x1 + (x2 - x1) * (yMin - y1) / (y2 - y1)
+                x = x1 + (1 / m) * (yMin - y1)
                 y = yMin
                     
             elif codeOut & RIGHT:
                 # point is to the right of the clip rectangle
-                y = y1 + (y2 - y1) * (xMax - x1) / (x2 - x1)
+                y = y1 + m * (xMax - x1)
                 x = xMax
                     
             elif codeOut & LEFT:
                 # point is to the left of the clip rectangle
-                y = y1 + (y2 - y1) * (xMin - x1) / (x2 - x1)
+                y = y1 + m * (xMin - x1)
                 x = xMin
                     
             # now we replace point outside rectangle by
